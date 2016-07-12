@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
   name = 'ev',
-  version = '0.0.1',
+  version = '0.0.2',
   description = 'Elephant Ventures Libraries',
   url = 'https://github.com/ElephantVentures/ev_python_lib',
   author = 'Elephant Ventures',
