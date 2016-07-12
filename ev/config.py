@@ -21,6 +21,12 @@ from collections import Mapping
 import json
 import os
 
+# Python 2/3 compatibility
+try:
+  basestring
+except NameError:
+  basestring = str
+
 def _merge_dicts(d1, d2):
   """
   Modifies d1 in-place to contain values from d2.  If any value
@@ -53,34 +59,24 @@ def _load_file(f):
   with codecs.open(f, mode = 'r', encoding = 'utf-8') as in_stream:
     return json.load(in_stream)
 
-class Config(Mapping):
+class Config(dict):
 
   """A mapping class which represents a (json-based) mapping of configuration objects."""
 
-  def __init__(self, *files):
-    """Loads each provided file in turn, merging it (and overriding keys) from
-    the previously loaded file. The files are expected to be utf-8 encoded JSON
-    files.
+  def __init__(self, *files, **kwargs):
+    """If provided with a dictionary or named arguments, populates itself from that
+    information.  Otherwise assumes a list of filenames, and loads each provided
+    file in turn, merging it (and overriding keys) from the previously loaded
+    file. The files are expected to be utf-8 encoded JSON files, each with a
+    single JSON object.
 
     """
-    self._data = _load_file(files[0])
-    for f in files[1:]:
-      _merge_dicts(self._data, _load_file(f))
+    if kwargs or (len(files) == 1 and not isinstance(files[0], basestring):
+      return dict.__init__(self, *files, **kwargs)
 
-  def __getitem__(self, key):
-    return self._data[key]
-
-  def __iter__(self):
-    return iter(self._data)
-
-  def __len__(self):
-    return len(self._data)
-
-  def __str__(self):
-    return str(self._data)
-
-  def __unicode__(self):
-    return unicode(self._data)
+    dict.__init__(self) # init with an empty dictionary
+    for f in files:
+      _merge_dicts(self, _load_file(f))
 
 _configs = {}
 def get_config(env = None, public_file = None, private_file = None):
