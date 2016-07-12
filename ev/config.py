@@ -21,6 +21,12 @@ from collections import Mapping
 import json
 import os
 
+# Python 2/3 compatibility
+try:
+  basestring
+except NameError:
+  basestring = str
+
 def _merge_dicts(d1, d2):
   """
   Modifies d1 in-place to contain values from d2.  If any value
@@ -65,15 +71,12 @@ class Config(dict):
     single JSON object.
 
     """
-    if kwargs or (len(files)==1 and type(files[0]) is not str):
+    if kwargs or (len(files) == 1 and not isinstance(files[0], basestring):
       return dict.__init__(self, *files, **kwargs)
+
     dict.__init__(self) # init with an empty dictionary
     for f in files:
       _merge_dicts(self, _load_file(f))
-
-  # Python2 compatibility
-  def __unicode__(self):
-    return unicode(self)
 
 _configs = {}
 def get_config(env = None, public_file = None, private_file = None):
