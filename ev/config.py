@@ -71,7 +71,7 @@ class Config(dict):
     single JSON object.
 
     """
-    if kwargs or (len(files) == 1 and not isinstance(files[0], basestring):
+    if kwargs or (len(files) == 1 and not isinstance(files[0], basestring)):
       return dict.__init__(self, *files, **kwargs)
 
     dict.__init__(self) # init with an empty dictionary
